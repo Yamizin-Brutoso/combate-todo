@@ -1,0 +1,707 @@
+```html
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valdrath RPG - Sistema de Combate</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap');
+        
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-tertiary: #1a1a25;
+            --text-primary: #e0e0e0;
+            --text-secondary: #8b8b9a;
+            --accent-gold: #d4af37;
+            --accent-blood: #8b0000;
+            --accent-magic: #4a90e2;
+            --accent-iron: #4a4a5a;
+            --border-subtle: #2a2a3a;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Crimson Text', serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        header {
+            background: linear-gradient(180deg, #1a1a2e 0%, var(--bg-primary) 100%);
+            padding: 60px 20px;
+            text-align: center;
+            border-bottom: 3px double var(--accent-blood);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: '⚔';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 200px;
+            opacity: 0.03;
+            color: var(--accent-gold);
+            pointer-events: none;
+        }
+        
+        header h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 3rem;
+            color: var(--accent-gold);
+            text-shadow: 0 0 30px rgba(139, 0, 0, 0.5);
+            letter-spacing: 0.15em;
+            position: relative;
+        }
+        
+        header p {
+            color: var(--text-secondary);
+            font-style: italic;
+            margin-top: 10px;
+            font-size: 1.2rem;
+        }
+        
+        nav {
+            position: sticky;
+            top: 0;
+            background: rgba(10, 10, 15, 0.98);
+            border-bottom: 2px solid var(--accent-blood);
+            z-index: 1000;
+            padding: 15px 0;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.8);
+        }
+        
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            padding: 0 20px;
+        }
+        
+        nav a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-family: 'Cinzel', serif;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            padding: 5px 12px;
+            border: 1px solid transparent;
+        }
+        
+        nav a:hover {
+            color: var(--accent-gold);
+            border-bottom: 1px solid var(--accent-blood);
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        h2 {
+            font-family: 'Cinzel', serif;
+            font-size: 2.2rem;
+            color: var(--accent-gold);
+            border-bottom: 2px solid var(--accent-blood);
+            padding-bottom: 10px;
+            margin: 60px 0 30px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.6rem;
+            color: var(--text-primary);
+            margin: 40px 0 20px;
+            border-left: 4px solid var(--accent-blood);
+            padding-left: 15px;
+        }
+        
+        h4 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.3rem;
+            color: var(--accent-magic);
+            margin: 25px 0 10px;
+        }
+        
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+            font-size: 1.1rem;
+        }
+        
+        .mechanic-box {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-subtle);
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid var(--accent-gold);
+            position: relative;
+        }
+        
+        .danger-box {
+            border-left-color: var(--accent-blood);
+            background: linear-gradient(90deg, rgba(139,0,0,0.1) 0%, var(--bg-secondary) 100%);
+        }
+        
+        .combat-box {
+            border-left-color: var(--accent-iron);
+            background: linear-gradient(90deg, rgba(74,74,90,0.2) 0%, var(--bg-secondary) 100%);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 1rem;
+            background: rgba(0,0,0,0.2);
+        }
+        
+        th {
+            background: var(--bg-tertiary);
+            color: var(--accent-gold);
+            font-family: 'Cinzel', serif;
+            padding: 12px;
+            text-align: left;
+            border-bottom: 2px solid var(--accent-blood);
+            font-weight: 600;
+        }
+        
+        td {
+            padding: 10px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+        
+        tr:hover {
+            background: rgba(212, 175, 55, 0.05);
+        }
+        
+        ul, ol {
+            margin-left: 30px;
+            margin-bottom: 20px;
+        }
+        
+        li {
+            margin-bottom: 8px;
+        }
+        
+        .formula {
+            background: #000;
+            border: 1px solid var(--accent-gold);
+            padding: 15px;
+            margin: 20px 0;
+            text-align: center;
+            font-family: 'Cinzel', serif;
+            color: var(--accent-gold);
+            font-size: 1.2rem;
+            letter-spacing: 1px;
+        }
+        
+        .example {
+            background: rgba(139, 0, 0, 0.1);
+            border: 1px solid var(--accent-blood);
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 0;
+        }
+        
+        .example h4 {
+            color: var(--accent-blood);
+            margin-top: 0;
+            border-bottom: 1px solid var(--accent-blood);
+            padding-bottom: 5px;
+        }
+        
+        .highlight {
+            color: var(--accent-gold);
+            font-weight: bold;
+        }
+        
+        .tag {
+            display: inline-block;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--accent-blood);
+            padding: 2px 8px;
+            font-size: 0.75rem;
+            margin-right: 5px;
+            font-family: 'Cinzel', serif;
+            color: var(--text-secondary);
+        }
+        
+        footer {
+            text-align: center;
+            padding: 40px;
+            border-top: 2px solid var(--accent-blood);
+            margin-top: 80px;
+            color: var(--text-secondary);
+        }
+        
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2rem;
+            }
+            .nav-container {
+                gap: 10px;
+            }
+            nav a {
+                font-size: 0.8rem;
+                padding: 3px 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>A Mecânica de Morte</h1>
+        <p>Sistema Completo de Combate para Valdrath</p>
+    </header>
+
+    <nav>
+        <div class="nav-container">
+            <a href="#turno">Turno</a>
+            <a href="#ataque">Atacar</a>
+            <a href="#defesa">Defesas</a>
+            <a href="#armas">Armas</a>
+            <a href="#armaduras">Armaduras</a>
+            <a href="#manobras">Manobras</a>
+            <a href="#criticos">Críticos</a>
+            <a href="#estados">Estados</a>
+            <a href="#exemplo">Exemplo</a>
+        </div>
+    </nav>
+
+    <div class="container">
+
+        <section id="turno">
+            <h2>◈ Estrutura do Turno</h2>
+            <p>Cada combatente possui <span class="highlight">2 Ações</span> por rodada e <span class="highlight">1 Reação</span> por rodada.</p>
+            
+            <div class="mechanic-box combat-box">
+                <h4>Fase 1: Leitura (Iniciativa)</h4>
+                <p>Todos rolam <strong>Instinto (INS)</strong>. Maior resultado age primeiro. Em empate, quem tem maior dado de Instinto vence. Quem ganha pode <strong>reposicionar</strong> antes do combate iniciar.</p>
+            </div>
+
+            <div class="mechanic-box">
+                <h4>Fase 2: Ações (Seu Turno)</h4>
+                <ul>
+                    <li><strong>Ação Principal:</strong> Atacar, conjurar, usar habilidade, agarrar, empurrar, interagir complexo</li>
+                    <li><strong>Ação Livre:</strong> Mover (6m), sacar arma, comunicar brevemente, pegar item pequeno</li>
+                </ul>
+            </div>
+
+            <div class="mechanic-box danger-box">
+                <h4>Fase 3: Reação (Fora do Seu Turno)</h4>
+                <p>Gasta quando algo te atinge ou passa ao seu alcance. <strong>Só 1 por rodada.</strong> Exemplos: Esquivar, Bloquear com escudo, Aparar, Agarrar borda.</p>
+            </div>
+        </section>
+
+        <section id="ataque">
+            <h2>◈ Como Atacar</h2>
+            
+            <div class="formula">
+                DADO DE ATRIBUTO + BÔNUS DA ARMA vs DEFESA DO ALVO
+            </div>
+
+            <p><strong>Corpo a Corpo:</strong> Usa <span class="highlight">Força (FOR)</span><br>
+            <strong>À Distância:</strong> Usa <span class="highlight">Agilidade (AGI)</span></p>
+
+            <h3>Cálculo de Dano</h3>
+            <div class="formula">
+                DADO DA ARMA + MODIFICADOR DE ATRIBUTO (metade do valor do dado) + BÔNUS - REDUÇÃO DA ARMADURA
+            </div>
+
+            <div class="example">
+                <h4>Exemplo de Dano</h4>
+                <p>Thar (FOR d8 = modificador +4) acerta com espada (d6 de dano).</p>
+                <p>Rola d6 (arma) + 4 (FOR) = <strong>10 de dano bruto</strong>.</p>
+                <p>Alvo tem armadura leve (reduz 1d4). Rola 2.</p>
+                <p><strong>Dano final: 8 pontos.</strong></p>
+            </div>
+        </section>
+
+        <section id="defesa">
+            <h2>◈ Tipos de Defesa</h2>
+            <p>Quando é atacado, escolhe uma forma de defender (se tiver Reação disponível):</p>
+
+            <h3>A) Esquiva (AGI)</h3>
+            <div class="mechanic-box">
+                <p>Rola dado de <strong>Agilidade</strong> contra o ataque. Se maior ou igual, erra.</p>
+                <p><strong>Vantagem:</strong> Em cobertura, contra ataques de longe.<br>
+                <strong>Desvantagem:</strong> Em terreno difícil, agarrado, surpreso, ou cego.</p>
+                <p><em>Postura Defensiva:</em> Gasta <strong>Ação Principal</strong> para entrar em postura. Até próximo turno, esquiva de todos ataques com vantagem (rola 2 dados, melhor resultado).</p>
+            </div>
+
+            <h3>B) Bloqueio/Parada (FOR)</h3>
+            <div class="mechanic-box combat-box">
+                <p>Usa escudo ou arma de parada (espadas, maças). Rola <strong>Força</strong>.</p>
+                <p>Se bem-sucedido, reduz dano em vez de anular. Escudos reduzem automaticamente em 1d6 (sem precisar rolar defesa, se escolher bloquear).</p>
+            </div>
+
+            <h3>C) Armadura Passiva</h3>
+            <div class="mechanic-box danger-box">
+                <p>Se não reagir (sem Reação disponível ou escolhe não usar), usa valor fixo da armadura. <strong>Acerto automático</strong>, mas dano é reduzido pelo valor da armadura.</p>
+            </div>
+        </section>
+
+        <section id="armas">
+            <h2>◈ Dano de Armas</h2>
+            <p>Armas não têm dano fixo. Têm <strong>modificadores de dado</strong> baseados no tipo:</p>
+
+            <table>
+                <tr>
+                    <th>Categoria</th>
+                    <th>Exemplos</th>
+                    <th>Dano Base</th>
+                    <th>Especial</th>
+                </tr>
+                <tr>
+                    <td>Leves</td>
+                    <td>Adagas, punhais, facas</td>
+                    <td>d4</td>
+                    <td>Se AGI d10+, ataque extra como Ação Bônus</td>
+                </tr>
+                <tr>
+                    <td>Médias</td>
+                    <td>Espadas, machados, maças</td>
+                    <td>d6</td>
+                    <td>Permite Parada; equilibrado</td>
+                </tr>
+                <tr>
+                    <td>Pesadas</td>
+                    <td>Espadões, alabardas, martelos</td>
+                    <td>d8</td>
+                    <td>Desvantagem se FOR abaixo de d8. Derruba em 19-20 natural</td>
+                </tr>
+                <tr>
+                    <td>Distância Leve</td>
+                    <td>Arcos curtos, fundas</td>
+                    <td>d4</td>
+                    <td>Sem desvantagem corpo-a-corpo</td>
+                </tr>
+                <tr>
+                    <td>Distância Média</td>
+                    <td>Arcos longos</td>
+                    <td>d6</td>
+                    <td>Desvantagem se alvo adjacente</td>
+                </tr>
+                <tr>
+                    <td>Distância Pesada</td>
+                    <td>Bestas, armas de fogo</td>
+                    <td>d8/d10</td>
+                    <td>Recarga lenta (1 turno para recarregar)</td>
+                </tr>
+                <tr>
+                    <td>Improvisados</td>
+                    <td>Cadeiras, pedras, garrafas</td>
+                    <td>d3 (1d6÷2)</td>
+                    <td>Quebra em 1 natural no dado</td>
+                </tr>
+            </table>
+        </section>
+
+        <section id="armaduras">
+            <h2>◈ Armaduras em Combate</h2>
+            <p>Armaduras <strong>reduzem dano</strong> e fornecem <strong>Defesa Passiva</strong> (quando não reage).</p>
+
+            <table>
+                <tr>
+                    <th>Armadura</th>
+                    <th>Redução de Dano</th>
+                    <th>Defesa Passiva</th>
+                    <th>Penalidade</th>
+                </tr>
+                <tr>
+                    <td>Nenhuma</td>
+                    <td>0</td>
+                    <td>8 (só base)</td>
+                    <td>Nenhuma</td>
+                </tr>
+                <tr>
+                    <td>Leve (Couro)</td>
+                    <td>1d4</td>
+                    <td>10</td>
+                    <td>Nenhuma</td>
+                </tr>
+                <tr>
+                    <td>Média (Malha)</td>
+                    <td>1d6</td>
+                    <td>12</td>
+                    <td>Desvantagem furtividade; natação lenta</td>
+                </tr>
+                <tr>
+                    <td>Pesada (Placas)</td>
+                    <td>1d8</td>
+                    <td>14</td>
+                    <td>Velocidade 4m; desvantagem AGI; não nada</td>
+                </tr>
+                <tr>
+                    <td>Escudo</td>
+                    <td>1d6 (com Reação)</td>
+                    <td>+2 na Defesa</td>
+                    <td>Ocupa mão; não armas de duas mãos</td>
+                </tr>
+            </table>
+
+            <div class="mechanic-box danger-box">
+                <h4>Regra de Ouro da Defesa</h4>
+                <p>Se usar <strong>Reação</strong> para Esquivar ou Bloquear → usa dado de atributo (pode falhar ou ter sucesso).</p>
+                <p>Se <strong>não reagir</strong> → usa Defesa Passiva (acerto automático, mas reduz dano).</p>
+            </div>
+        </section>
+
+        <section id="manobras">
+            <h2>◈ Ataques Especiais (Manobras)</h2>
+            <p>Gastando a <strong>Ação Principal</strong>, pode escolher:</p>
+
+            <h4>Ataque Poderoso</h4>
+            <div class="mechanic-box danger-box">
+                <p><strong>Custo:</strong> Desvantagem no ataque (rola 2 dados, pior resultado).<br>
+                <strong>Benefício:</strong> Se acertar, dano é dobrado (soma dado da arma 2x).<br>
+                <strong>Risco:</strong> Se errar, sofre 1d4 de dano de fadiga em RES.</p>
+            </div>
+
+            <h4>Ataque Preciso</h4>
+            <div class="mechanic-box">
+                <p><strong>Custo:</strong> Dificuldade do ataque +4 (Defesa 12 vira 16).<br>
+                <strong>Benefício:</strong> Ignora redução de armadura + causa efeito (cegueira 1 turno, lentidão, ou dano em atributo).</p>
+            </div>
+
+            <h4>Ataque em Movimento</h4>
+            <div class="mechanic-box combat-box">
+                <p>Move 6m + ataca no meio do movimento.<br>
+                <strong>Desvantagem no ataque.</strong><br>
+                Alvo <strong>não pode usar Reação</strong> se estava de costas.</p>
+            </div>
+
+            <h4>Golpe de Escudo</h4>
+            <div class="mechanic-box">
+                <p>Requer escudo. Dano 1d4 + FOR.<br>
+                Alvo testa RES vs dano ou cai <strong>deitado</strong>.<br>
+                Se gastou Reação para bloquear neste turno, pode fazer isso como <strong>Ação Bônus</strong>.</p>
+            </div>
+
+            <h4>Agarrar</h4>
+            <div class="mechanic-box combat-box">
+                <p>Teste oposto: <strong>FOR vs FOR</strong> ou <strong>AGI vs AGI</strong> (escolha do atacante).<br>
+                Se vencer: alvo está <strong>Agarrado</strong> (0 movimento, defesa d4, só armas leves).<br>
+                Manter: gasta <strong>Ação Livre</strong> a cada turno para manter.</p>
+            </div>
+
+            <h4>Empurrar/Derrubar</h4>
+            <div class="mechanic-box">
+                <p>Similar a agarrar, mas <strong>FOR vs RES</strong>.<br>
+                Se vencer: alvo cai <strong>deitado</strong> (gasta Ação para levantar).</p>
+            </div>
+        </section>
+
+        <section id="criticos">
+            <h2>◈ Críticos e Falhas</h2>
+
+            <h3>Crítico Natural (Máximo no Dado)</h3>
+            <div class="mechanic-box">
+                <p>Rolou o valor máximo do dado de ataque (8 no d8, 12 no d12):</p>
+                <ul>
+                    <li><strong>Dano máximo automático</strong> (não precisa rolar dano)</li>
+                    <li><strong>Efeito adicional baseado no tipo:</strong>
+                        <ul>
+                            <li><strong>Cortante:</strong> Sangramento (1d4 dano por turno até curado)</li>
+                            <li><strong>Perfuração:</strong> Atravessa (atinge alvo atrás, se houver)</li>
+                            <li><strong>Esmagamento:</strong> Fratura (alvo perde 1d4 de FOR até descanso longo)</li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+
+            <h3>Falha Crítica (1 Natural)</h3>
+            <div class="mechanic-box danger-box">
+                <p>Rolou 1 no dado de ataque:</p>
+                <ul>
+                    <li>Arma trava no escudo/armadura</li>
+                    <li>Arma quebra (se improvisada)</li>
+                    <li>Acerta aliado adjacente (escolha do Mestre)</li>
+                    <li>Se magia: <strong>backlash</strong> imediato (dano dobrado no atributo fonte)</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="estados">
+            <h2>◈ Estados de Combate (Condições)</h2>
+
+            <table>
+                <tr>
+                    <th>Estado</th>
+                    <th>Efeito Mecânico</th>
+                    <th>Cura</th>
+                </tr>
+                <tr>
+                    <td><strong>Sangrando</strong></td>
+                    <td>Perde 1d4 HP por turno</td>
+                    <td>Ação de cura ou fogo/cauterização</td>
+                </tr>
+                <tr>
+                    <td><strong>Cego</strong></td>
+                    <td>Desvantagem em ataques; não esquiva de projéteis</td>
+                    <td>1 turno esfregando olhos ou magia</td>
+                </tr>
+                <tr>
+                    <td><strong>Deitado</strong></td>
+                    <td>Desvantagem ataques; metade movimento; +2 defesa vs distância</td>
+                    <td>Levantar (Ação)</td>
+                </tr>
+                <tr>
+                    <td><strong>Agarrado</strong></td>
+                    <td>0 movimento; defesa d4; só armas leves</td>
+                    <td>Vencer teste oposto ou derrubar agarrador</td>
+                </tr>
+                <tr>
+                    <td><strong>Atordoado</strong></td>
+                    <td>Não pode agir; defesa d4</td>
+                    <td>1 turno ou teste RES vs 12</td>
+                </tr>
+                <tr>
+                    <td><strong>Medo</strong></td>
+                    <td>Deve fugir ou ficar paralisado</td>
+                    <td>Teste PRE por turno</td>
+                </tr>
+                <tr>
+                    <td><strong>Envenenado</strong></td>
+                    <td>Desvantagem em tudo; 1d4 dano por minuto</td>
+                    <td>Antídoto ou cura mágica</td>
+                </tr>
+            </table>
+        </section>
+
+        <section id="exemplo">
+            <h2>◈ Exemplo Completo de Rodada</h2>
+
+            <div class="example">
+                <h4>Cenário</h4>
+                <p><strong>Thar</strong> (Guerreiro, FOR d8, RES d8, armadura média, espada d6) 
+                vs 
+                <strong>Goblin</strong> (AGI d6, sem armadura, adaga d4)</p>
+            </div>
+
+            <h4>Fase 1: Leitura</h4>
+            <p>Thar rola INS d8 = <strong>6</strong><br>
+            Goblin rola INS d6 = <strong>4</strong><br>
+            <span class="highlight">Thar age primeiro.</span></p>
+
+            <h4>Turno de Thar</h4>
+            <div class="mechanic-box combat-box">
+                <p>Thar usa <strong>Ataque Poderoso</strong> (gasta Ação Principal):</p>
+                <ul>
+                    <li>Desvantagem no ataque: rola 2d8, fica com o pior</li>
+                    <li>Rolou 3 e 7 → fica com <strong>3</strong></li>
+                    <li>+ bônus espada (2) = <strong>5 total</strong></li>
+                </ul>
+                <p>Goblin usa <strong>Reação para Esquivar</strong> (AGI d6): rolou <strong>5</strong>.</p>
+                <p>5 vs 5 = Empate. <strong>Defensor ganha em empate. Errou!</strong></p>
+                <p>Thar sofre <strong>1d4 fadiga</strong> (por errar o poderoso) = 2 de dano em RES.</p>
+            </div>
+
+            <h4>Turno do Goblin</h4>
+            <div class="mechanic-box danger-box">
+                <p>Goblin ataca normalmente (adaga d4):</p>
+                <ul>
+                    <li>AGI d6 = 5 + 1 (bônus adaga) = <strong>6</strong></li>
+                </ul>
+                <p>Thar ainda tem <strong>Reação disponível</strong>. Decide entre:</p>
+                <ul>
+                    <li>Esquivar (AGI d6 = arriscado)</li>
+                    <li>Usar Armadura Passiva (12, acerto automático mas reduz dano)</li>
+                </ul>
+                <p>Thar escolhe <strong>Esquivar</strong>: rola AGI d6 = <strong>2</strong>.</p>
+                <p>6 > 2 = <strong>Acerto no Thar!</strong></p>
+                <p>Dano: d4 (adaga) + 2 (metade AGI d6) = 3+2 = <strong>5</strong>.</p>
+                <p>Armadura média reduz 1d6 = 4. <strong>Dano final: 1.</strong></p>
+            </div>
+
+            <h4>Fim da Rodada 1</h4>
+            <p>Thar: 1 de dano + 2 fadiga = sofreu 3 no total.<br>
+            Goblin: intacto, mas sem Reação até próxima rodada.</p>
+        </section>
+
+        <section>
+            <h2>◈ Combate à Distância</h2>
+            
+            <h4>Alcances</h4>
+            <table>
+                <tr>
+                    <th>Distância</th>
+                    <th>Metros</th>
+                    <th>Penalidade</th>
+                </tr>
+                <tr>
+                    <td>Curto</td>
+                    <td>Até 6m</td>
+                    <td>Nenhuma</td>
+                </tr>
+                <tr>
+                    <td>Médio</td>
+                    <td>6m - 30m</td>
+                    <td>Nenhuma</td>
+                </tr>
+                <tr>
+                    <td>Longo</td>
+                    <td>30m - 120m</td>
+                    <td>Desvantagem no ataque</td>
+                </tr>
+                <tr>
+                    <td>Extremo</td>
+                    <td>120m+</td>
+                    <td>Dificuldade +4; só armas de precisão</td>
+                </tr>
+            </table>
+
+            <h4>Cobertura</h4>
+            <ul>
+                <li><strong>25% coberto:</strong> Defesa +2</li>
+                <li><strong>50% coberto:</strong> Defesa +4, resistência a dano à distância</li>
+                <li><strong>75% coberto:</strong> Defesa +6, imune a ataques diretos (só área)</li>
+            </ul>
+
+            <div class="mechanic-box danger-box">
+                <h4>Disparo em Corpo a Corpo</h4>
+                <p>Arcos e bestas têm <strong>desvantagem</strong> se inimigo adjacente.<br>
+                Armas de fogo (raras) não têm penalidade.</p>
+            </div>
+        </section>
+
+        <footer>
+            <p style="font-family: 'Cinzel', serif; font-size: 1.2rem; color: var(--accent-gold);">Valdrath RPG</p>
+            <p>Sistema de Combate</p>
+            <p style="font-size: 0.9rem; margin-top: 20px;">"Na lama e no sangue, sobrevive o mais preparado."</p>
+        </footer>
+
+    </div>
+
+    <script>
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+```
